@@ -36,7 +36,7 @@ router.post("/:username/follow",(req,res)=>{
     })
 })
 
-// unfollow
+// unfollow user
 
 router.post("/:username/follow",(req,res)=>{
     var username=req.params.username;
