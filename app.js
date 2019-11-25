@@ -14,7 +14,7 @@ var userRouter = require('./routes/user');
 
 var app = express();
  
-// connect to DB
+// connect to DataBase
 
 mongoose.connect("mongodb://localhost/conduitApi",{
  useNewUrlParser: true,
