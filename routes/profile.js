@@ -8,7 +8,7 @@ router.use(auth.validToken);
 
 // to get single profile
 
-router.get("./:username" , (req,res)=>{
+router.get("/:username" , (req,res)=>{
     User.findOne({username :req.params.username},(err,user)=>{
         if(err) return res.json({err});
         res.json({user});

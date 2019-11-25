@@ -17,7 +17,7 @@ var articleSchema = new Schema({
     body:{
         type:String
     },
-    tagList:[{
+    tags:[{
         type: String
     }],
     favorite:{
