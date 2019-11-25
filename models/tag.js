@@ -12,5 +12,4 @@ var tagSchema = new Schema ({
     }
 })
 
-
 module.exports = mongoose.model("Tag", tagSchema);
