@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
  var userSchema = new Schema({
      username : {
          type : String,
-         required : true,
+
          unique : true
      },
      email : {
@@ -28,6 +28,10 @@ var Schema = mongoose.Schema;
      },
      followers:{
          type:[String]
+     },
+     favorited:{
+         type:[Schema.Types.ObjectId],
+         ref:"Article"
      },
      article :{
          type : Schema.Types.ObjectId,
