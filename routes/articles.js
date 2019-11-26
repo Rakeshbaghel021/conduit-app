@@ -3,7 +3,8 @@ const Article = require("../models/article");
 const router = express.Router();
 const auth = require("../middleware/auth");
 const Comment = require("../models/comment");
-
+const Tag = require("../models/tag");
+const User = require("../models/user");
 
 // create article
 
@@ -15,10 +16,26 @@ router.post("/", (req,res,next)=>{
             success : false,
             msg: "article is not created"
         });
-        res.json(CreatedArticle);
+        CreatedArticle.tags.forEach(tag =>{
+          Tag.findOne({tagName :tag},(err , foundtag)=>{
+            if(!foundtag){
+              Tag.create({articleId :CreatedArticle._id,tagName:tag},(err,createdTag)=>{
+                if(err) return next(err);
+                if(!createdTag ) return res.json({success:false,msg:"tag not created"})
+              })
+            }else if(foundtag){
+              Tag.findByIdAndUpdate(foundtag._id,{$push:{articleId:CreatedArticle._id}},{new:true},(err,updatetag)=>{
+                if(err) return next(err);
+              
+              })
+            }
+          })
+        })
+          res.json({success:true,CreatedArticle});
+        });
 
     });
-});
+
 
 // to get all articles list
 
@@ -39,6 +56,8 @@ router.get("/:slug",(req,res,next)=>{
         res.json(singleArticle);
     })
 })
+
+router.use(auth.validToken);
 
 // to update article
 
@@ -134,7 +153,55 @@ router.post("/:slug/comments", (req, res, next) => {
     });
   });
   
+
+
+// fav article
+
+router.post('/:slug/favorite',(req,res,next)=>{
+  let slug = req.params.slug;
+  console.log(req.user);
+  Article.findOne({slug},(err,article)=>{
+    if(err) return next(err);
+    if(!article) return res.json({success:false,msg:"no artcile"});
+    Article.findOneAndUpdate({slug},{$push:{favorites:req.user.userId}},{new:true},
+      (err,favoriteArticle)=>{
+        if(err) return next(err);
+        favoriteArticle.favoriteCount++;
+        User.findOneAndUpdate({username:req.user.username},{$push:{favorited:article._id}},
+          {new:true},(err,favoritedUser)=>{
+            if(err) return next(err);
+            res.json({favoriteArticle,favoritedUser});
+          }
+      )
+        }
+  )
+})
+})
   
-router.use(auth.validToken);
+
+// unfav article
+router.delete('/:slug/favorite',(req,res,next)=>{
+  let slug = req.params.slug;
+  console.log(req.user);
+  Article.findOne({slug},(err,article)=>{
+    if(err) return next(err);
+    if(!article)
+    return res.json({success:false,msg:"no artcile"});
+    Article.findOneAndUpdate({slug},{$pull:{favorites:req.user.userId}},{new:true},
+      (err,unfavoriteArticle)=>{
+        if(err) return next(err);
+        unfavoriteArticle.favoritesCount-1;
+        User.findOneAndUpdate({username:req.user.username},{$pull:{favorited:article._id}},
+          {new:true},(err,unfavoritedUser)=>{
+            if(err) return next(err);
+            res.json({unfavoriteArticle,unfavoritedUser});
+          }
+      )
+        }
+  )
+})
+})
+
+
 
 module.exports = router;

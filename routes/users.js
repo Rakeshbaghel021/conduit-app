@@ -16,8 +16,7 @@ const logged = auth.validToken;
 router.post('/',(req,res , next)=>{
   User.create(req.body ,(err, createdUser)=>{
     if(err) return next(err);
-    res.json(createdUser);
-    next();
+    res.json({success:true,msg:"register successfully"});
   });
 });
 
@@ -45,7 +44,7 @@ router.get('/:id',(req, res, next)=>{
 router.post('/login',(req, res)=>{
   User.findOne({email:req.body.email},(err, user)=>{
     if(err) return next(err);
-    if(!user) return next(err);
+    if(!user) res.json({success:false,msg:"invalid email"});
     if(!user.matchPassword(req.body.password)){
       res.send("wrong password");
     }

@@ -38,11 +38,11 @@ router.post("/:username/follow",(req,res)=>{
 
 // unfollow user
 
-router.post("/:username/follow",(req,res)=>{
+router.delete("/:username/follow",(req,res)=>{
     var username=req.params.username;
     User.findOne({username},(err,user)=>{
         if(err) return res.json({err});
-        if(!user.followers.includes(username)){
+        if(user.followers.includes(username)){
             User.findOneAndUpdate({username},{$pull : {followers : req.user.username}},(err,followinguser)=>{
                 if(err) return res.json({err});
                 User.findOneAndUpdate(req.user.userId,{$pull : {following:followinguser.username}},(err,currentuser)=>{
@@ -50,6 +50,8 @@ router.post("/:username/follow",(req,res)=>{
                     res.json({currentuser,followinguser});
                 })
             })
+        } else {
+            res.json({user})
         }
 
     })
